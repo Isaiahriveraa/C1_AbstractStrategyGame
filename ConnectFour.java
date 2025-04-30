@@ -14,37 +14,37 @@ public class ConnectFour extends AbstractStrategyGame {
     private static final String WHITE = "⚪️";
 
     /*
-     * Need a constructor 
-     *    Creates a 7 by 6 2D array empty
-     *    Goes t
-     *  
+     * Need a constructor
+     * Creates a 7 by 6 2D array empty
+     * Goes t
+     * 
      * I need the users to take turns
      * Clear end condition (Winner or tie)
      * Need to check streaks
-     *    Horizontally, Vertically
+     * Horizontally, Vertically
      * 
      * WhoIsPlaying()
-     *    If odd means that the player 1 is playing
-     *    if even means that the player 2 is playing
+     * If odd means that the player 1 is playing
+     * if even means that the player 2 is playing
      * 
      * MakeMove (int value)
-     *    isNumberValid()
-     *    isColumnFull()
-     *    isGameOver()
+     * isNumberValid()
+     * isColumnFull()
+     * isGameOver()
      * 
      */
     public ConnectFour() {
         board = new String[6][7];
         playerTurn = 0;
-        fillBoardWithDots();
+        fillBoardWithWhite();
     }
 
     public String instructions() {
         return "Welcome to the board game Connect Four If you are new to this game here are some "
-            + "rules. \n\n  1) 2 Player game. \n  2) Pick your number as a player either 1 or 2. \n"
-            + "  3) Try to get a streak of four of your number either vertically or horizontally.\n"
-            + "  4) The goal is to win but also block the other player from getting a 4 color "
-            + " streak. ";
+                + "rules. \n\n  1) 2 Player game. \n  2) Pick your number as a player either 1 or 2. \n"
+                + "  3) Try to get a streak of four of your number either vertically or horizontally.\n"
+                + "  4) The goal is to win but also block the other player from getting a 4 color "
+                + " streak. ";
     }
 
     public String toString() {
@@ -66,75 +66,101 @@ public class ConnectFour extends AbstractStrategyGame {
             toString += "]";
         }
         toString += "\n";
-    
+
         return toString;
     }
-    
+
     public void makeMove(Scanner scan) {
-        int row;
+        int column;
         String color = "";
 
         if (playerTurn == 1) {
             System.out.print("Where would you like to place your " + RED + ": ");
-            row = Integer.parseInt(scan.nextLine()) - 1;
+            column = Integer.parseInt(scan.nextLine()) - 1;
             color = RED;
         } else {
             System.out.print("Where would you like to place your " + YEllOW + ": ");
-            row = Integer.parseInt(scan.nextLine()) - 1;
+            column = Integer.parseInt(scan.nextLine()) - 1;
             color = YEllOW;
         }
 
-        while (isColumnFull(row)) {
-            System.out.print("Try again, column " + row + " is full: ");
-            row = Integer.parseInt(scan.nextLine()) - 1;
+        while (isColumnFull(column)) {
+            System.out.print("Try again, column " + column + " is full: ");
+            column = Integer.parseInt(scan.nextLine()) - 1;
         }
         /*
-         * start at the bottom and then check when we dont see white 
+         * start at the bottom and then check when we dont see white
          * they give us the column we have to start at row 0 and increment.
          */
-        int actualRow = 0;
-        while (!board[actualRow][row].equals(WHITE) && actualRow < 5) {
-            actualRow++;
+        int row = 0;
+        while (!board[row][column].equals(WHITE) && row < 5) {
+            row++;
         }
-        board[actualRow][row] = color;
+        board[row][column] = color;
 
     }
 
     public int getWinner() {
-
-        int streak = 0;
-        String color = RED;
-        for (int i = 0; i < board.length; i++) {
-            streak = 0;
-            for (int j = 0; j < board[i].length; j++) {
-                if (streak == 4) {
-                    return playerTurn;
-                }
-                if (board[i][j] == color) {
-                    streak++;
-                } else {
-                    color = YEllOW;
-                    streak = 1;
-                }
-            }
+        if (fourInARow(RED)) {
+            return 1;
         }
-
-        for (int i = 0; i < board[0].length; i++) {
-            streak = 0;
-            for (int j = 0; j < board.length; j++) {
-                if (streak == 4) {
-                    return playerTurn;
-                }
-                if (board[j][i] == color) {
-                    streak++;
-                } else {
-                    color = YEllOW;
-                    streak = 1;
-                }
-            }
+        if (fourInARow(YEllOW)) {
+            return 2;
         }
-
         return -1;
+    }
+
+    public boolean fourInARow(String color) {
+        for (int i = 0; i < board.length; i++) {
+            int streak = 0;
+            for (int j = 0; j < board[0].length; j++) {
+                if (board[i][j].equals(color)) {
+                    streak++;
+                    if (streak == 4) {
+                        return true;
+                    }
+                } else {
+                    streak = 0;
+                }
+            }
+        }
+
+        for (int j = 0; j < board[0].length; j++) {
+            int streak = 0;
+            for (int i = 0; i < board.length; i++) {
+                if (board[i][j].equals(color)) {
+                    streak++;
+                    if (streak == 4) {
+                        return true;
+                    }
+                } else {
+                    streak = 0;
+                }
+            }
+        }
+
+        for (int i = 0; i <= board.length - 4; i++) {
+            for (int j = 0; j <= board[0].length - 4; j++) {
+                if (board[i][j].equals(color) &&
+                        board[i + 1][j + 1].equals(color) &&
+                        board[i + 2][j + 2].equals(color) &&
+                        board[i + 3][j + 3].equals(color)) {
+                    return true;
+                }
+            }
+        }
+
+        for (int i = 3; i < board.length; i++) {
+            for (int j = 0; j <= board[0].length - 4; j++) {
+                if (board[i][j].equals(color) &&
+                        board[i - 1][j + 1].equals(color) &&
+                        board[i - 2][j + 2].equals(color) &&
+                        board[i - 3][j + 3].equals(color)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public int getNextPlayer() {
@@ -155,7 +181,7 @@ public class ConnectFour extends AbstractStrategyGame {
         return true;
     }
 
-    public void fillBoardWithDots() {
+    public void fillBoardWithWhite() {
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board[i].length; j++) {
                 board[i][j] = WHITE;
